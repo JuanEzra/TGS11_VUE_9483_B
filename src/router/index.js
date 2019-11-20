@@ -1,30 +1,57 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-const DashboardLayout = () => import(/* webpackChunkName: "dashboard" */ '../components/dashboardLayout.vue')
+import Vue from 'vue';
+import Router from 'vue-router';
+const DashboardLayout = () =>
+  import('../components/dashboardLayout.vue');
+
 function loadView(view) {
-    return () => import(/* webpackChunkName: "view-
-[request]" */ `../components/dashboardContents/${view}.vue`)
+  return () =>
+    import(`../components/dashboardContents/${view}.vue`);
+}
+function isAuthenticated() {
+  if (localStorage.getItem('token') == null) {
+    return true;
+  }
 }
 
 const routes = [
-{
+  { 
     path: '/',
     component: DashboardLayout,
     children: [
-    {
+      {
         name: 'UserController',
+        path: 'user',
+        component: loadView('userController'),
+        beforeEnter(to, from, next) {
+          if (!isAuthenticated()) {
+            next();
+          } else {
+            next('/');
+            alert('Please Login to Continue!');
+          }
+        }
+      },
+      {
+        name: 'VehicleController',
+        path: 'vehicle',
+        component: loadView('vehicleController'),
+        beforeEnter(to, from, next) {
+          if (!isAuthenticated()) {
+            next();
+          } else {
+            next('/');
+            alert('Please Login to Continue!');
+          }
+        }
+      },
+      {
+        name: 'LoginController',
         path: '',
-        component: loadView('userController')
-    },
-    {
-        name: 'VehiclesController',
-        path: 'vehicles',
-        component: loadView('vehiclesController')
-    }
+        component: loadView('loginController')
+      }
     ]
-},
-
-]
-    Vue.use(Router)
-    const router = new Router({mode: 'history', routes: routes})
-    export default router
+  }
+];
+Vue.use(Router);
+const router = new Router({ mode: 'history', routes: routes });
+export default router;
